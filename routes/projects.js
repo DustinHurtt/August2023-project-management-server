@@ -57,7 +57,12 @@ router.put("/:projectId", (req, res, next) => {
   }
 
   Project.findByIdAndUpdate(projectId, req.body, { new: true })
-    .then((updatedProject) => res.json(updatedProject))
+    .then((updatedProject) => {
+        return updatedProject.populate('tasks')
+    })
+    .then((populated) => {
+        res.json(populated)
+    })
     .catch((error) => res.json(error));
 });
 
@@ -70,8 +75,9 @@ router.delete("/:projectId", (req, res, next) => {
   }
 
   Project.findByIdAndRemove(projectId)
-    .then(() =>
+    .then((deleted) =>
       res.json({
+        deleted,
         message: `Project with ${projectId} is removed successfully.`,
       })
     )
